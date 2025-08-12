@@ -8,6 +8,7 @@ flask-cors==4.0.0
 
 # Google AI SDK
 google-genai==1.29.0
+google-cloud-aiplatform==1.56.0
 
 # 其他工具
 python-dotenv==1.0.0
