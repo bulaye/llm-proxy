@@ -53,7 +53,7 @@ def chat_completions():
                 contents.append(Content(role="model", parts=[Part.from_text(content)]))
             elif role == "user":
                 # user保持不变，简单转换content
-                contents.append(Content(role="user", parts=[Part.from_text(str(content))]))
+                contents.append(Content(role="user", parts=[Part.from_text(content)]))
         
         # 创建模型
         model_kwargs = {}

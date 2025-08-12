@@ -3,8 +3,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import OpenAI from "openai";
 
-// const baseURL = "https://llm-proxy-605029883265.us-central1.run.app";
-const baseURL = "http://localhost:8080";
+const baseURL = "https://llm-proxy-605029883265.us-central1.run.app";
+// const baseURL = "http://localhost:8080";
 // 配置OpenAI客户端指向本地代理服务
 const openai = new OpenAI({
   // baseURL: "http://localhost:8080/v1",
