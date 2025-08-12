@@ -29,23 +29,6 @@ import requests
 import re
 from vertexai.generative_models import Content, Part, Image
 
-def extract_base64_from_data_uri(data_uri):
-    """从数据 URI 中提取 Base64 编码的数据"""
-    # 匹配格式：data:[<mediatype>][;base64],<data>
-    match = re.search(r"data:image\/\w+;base64,(.+)", data_uri)
-    if match:
-        return match.group(1)
-    # 如果格式不标准，尝试直接获取逗号后的内容
-    if "," in data_uri:
-        return data_uri.split(",", 1)[1]
-    return data_uri  # 可能已经是纯 Base64
-
-def download_image(url):
-    """下载远程图片"""
-    response = requests.get(url)
-    response.raise_for_status()  # 确保请求成功
-    return response.content
-
 def process_message_content(content):
     """处理消息内容，支持文本和图片的混合内容"""
     parts = []
@@ -62,32 +45,38 @@ def process_message_content(content):
                 image_url = item.get("image_url", {}).get("url", "")
                 if image_url:
                     try:
-                        if image_url.startswith("data:"):
-                            # Base64 data URI
-                            base64_data = extract_base64_from_data_uri(image_url)
-                            image_bytes = base64.b64decode(base64_data)
-                            
-                            # 从data URI中提取MIME类型
-                            mime_match = re.search(r"data:(image/\w+)", image_url)
-                            mime_type = mime_match.group(1) if mime_match else "image/png"
-                            
-                            image = Image.from_bytes(image_bytes)
-                            parts.append(Part.from_image(image))
-                        elif image_url.startswith(("http://", "https://")):
+                        if image_url.lower().startswith("gs://"):
+                            mime_type, _ = mimetypes.guess_type(image_url)
+                            parts.append(Part.from_uri(uri=image_url, mime_type=mime_type))
+                        elif image_url.lower().startswith(("http://", "https://")):
                             # 远程URL
-                            image_bytes = download_image(image_url)
-                            image = Image.from_bytes(image_bytes)
-                            parts.append(Part.from_image(image))
-                        else:
-                            # 可能是纯Base64字符串
+                            mime_type, _ = mimetypes.guess_type(image_url)
+                            parts.append(Part.from_uri(uri=image_url, mime_type=mime_type))
+                        elif image_url.strip().startswith("data:image"):
                             try:
-                                image_bytes = base64.b64decode(image_url)
-                                image = Image.from_bytes(image_bytes)
-                                parts.append(Part.from_image(image))
-                            except Exception:
-                                # 如果无法解码，跳过这个图片
-                                print(f"警告: 无法处理图片URL: {image_url[:50]}...")
-                                continue
+                                # 解析 Data URI: data:[<mime_type>];base64,[<data>]
+                                header, encoded_data = image_url.split(",", 1)
+                                mime_type = header.split(";")[0].split(":")[1]
+                                # 将 base64 字符串解码为字节
+                                decoded_data = base64.b64decode(encoded_data)
+                                parts.append(Part.from_data(data=decoded_data, mime_type=mime_type))
+                            except (ValueError, IndexError) as e:
+                                raise ValueError(f"无效的 Base64 Data URI 格式: {e}")
+                        # 4. 检查是否为本地文件
+                        elif os.path.isfile(image_url):
+                            mime_type, _ = mimetypes.guess_type(image_url)
+                            if not mime_type:
+                                raise ValueError(f"无法确定文件 '{image_url}' 的 MIME 类型。")
+                                
+                            with open(image_url, "rb") as f:
+                                image_data = f.read()
+                            return Part.from_data(data=image_data, mime_type=mime_type)
+
+                        # 5. 如果以上都不是，则是无效输入
+                        else:
+                            raise FileNotFoundError(
+                                f"输入 '{image_url}' 不是一个有效的 GCS URI、HTTPS URL、Base64 Data URI 或存在的本地文件路径。"
+                            )
                     except Exception as e:
                         print(f"错误: 处理图片时出错 - {str(e)}")
                         continue
