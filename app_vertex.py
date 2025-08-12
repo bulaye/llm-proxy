@@ -10,6 +10,7 @@ import time
 import base64
 import mimetypes
 import requests
+import tempfile
 
 # 加载环境变量
 load_dotenv()
@@ -45,6 +46,57 @@ def download_image(url):
     response.raise_for_status()  # 确保请求成功
     return response.content
 
+def process_message_content(content):
+    """处理消息内容，支持文本和图片的混合内容"""
+    parts = []
+    
+    if isinstance(content, str):
+        # 简单文本消息
+        parts.append(Part.from_text(content))
+    elif isinstance(content, list):
+        # 结构化内容，可能包含文本和图片
+        for item in content:
+            if item.get("type") == "text":
+                parts.append(Part.from_text(item.get("text", "")))
+            elif item.get("type") == "image_url":
+                image_url = item.get("image_url", {}).get("url", "")
+                if image_url:
+                    try:
+                        if image_url.startswith("data:"):
+                            # Base64 data URI
+                            base64_data = extract_base64_from_data_uri(image_url)
+                            image_bytes = base64.b64decode(base64_data)
+                            
+                            # 从data URI中提取MIME类型
+                            mime_match = re.search(r"data:(image/\w+)", image_url)
+                            mime_type = mime_match.group(1) if mime_match else "image/png"
+                            
+                            image = Image.from_bytes(image_bytes)
+                            parts.append(Part.from_image(image))
+                        elif image_url.startswith(("http://", "https://")):
+                            # 远程URL
+                            image_bytes = download_image(image_url)
+                            image = Image.from_bytes(image_bytes)
+                            parts.append(Part.from_image(image))
+                        else:
+                            # 可能是纯Base64字符串
+                            try:
+                                image_bytes = base64.b64decode(image_url)
+                                image = Image.from_bytes(image_bytes)
+                                parts.append(Part.from_image(image))
+                            except Exception:
+                                # 如果无法解码，跳过这个图片
+                                print(f"警告: 无法处理图片URL: {image_url[:50]}...")
+                                continue
+                    except Exception as e:
+                        print(f"错误: 处理图片时出错 - {str(e)}")
+                        continue
+    else:
+        # 其他格式，转为文本
+        parts.append(Part.from_text(str(content)))
+    
+    return parts
+
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -77,44 +129,9 @@ def chat_completions():
                 system_instruction = content
             elif role == "assistant":
                 # assistant -> model
-                contents.append(Content(role="model", parts=[Part.from_text(content)]))
+                contents.append(Content(role="model", parts=process_message_content(content)))
             elif role == "user":
-                # 处理用户消息，支持文本和图片
-                parts = []
-                
-                if isinstance(content, str):
-                    # 纯文本消息
-                    parts.append(Part.from_text(content))
-                elif isinstance(content, list):
-                    # 多模态消息（文本 + 图片）
-                    for item in content:
-                        if item["type"] == "text":
-                            # 处理文本部分
-                            parts.append(Part.from_text(item["text"]))
-                        
-                        elif item["type"] == "image_url":
-                            url_or_data = item["image_url"]["url"]
-                            
-                            # 检查是否是 Base64 数据 URI（格式如：data:image/png;base64,iVBORw0...）
-                            if url_or_data.startswith("data:image/"):
-                                # 从数据 URI 中提取 Base64 部分
-                                base64_data = extract_base64_from_data_uri(url_or_data)
-                                # 直接解码 base64 数据并创建 Image 对象
-                                image_bytes = base64.b64decode(base64_data)
-                                parts.append(Part.from_image(Image(image_bytes=image_bytes)))
-                                
-                            elif url_or_data.startswith(("http://", "https://")):
-                                # 处理 HTTP/HTTPS URL
-                                image_data = download_image(url_or_data)
-                                parts.append(Part.from_image(Image(image_bytes=image_data)))
-                                
-                            else:
-                                # 其他情况（可能是本地路径或 GCS URI）
-                                # 注意：Vertex AI 原生支持 GCS URI（gs://...）
-                                parts.append(Part.from_image(Image.load_from_file(url_or_data)))
-                
-                if parts:
-                    contents.append(Content(role="user", parts=parts))
+                contents.append(Content(role="user", parts=process_message_content(content)))
         
         # 创建模型
         model_kwargs = {}

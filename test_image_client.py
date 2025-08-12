@@ -6,6 +6,9 @@ import requests
 import json
 import base64
 
+# base_url = "http://localhost:8080/v1/chat/completions"
+base_url = "https://llm-proxy-605029883265.us-central1.run.app/v1/chat/completions"
+
 def test_text_only():
     """测试纯文本消息"""
     print("🧪 测试纯文本消息...")
@@ -22,7 +25,7 @@ def test_text_only():
     }
     
     response = requests.post(
-        "http://localhost:8080/v1/chat/completions",
+        base_url,
         json=data,
         headers={"Content-Type": "application/json"}
     )
@@ -64,7 +67,7 @@ def test_image_base64():
     }
     
     response = requests.post(
-        "http://localhost:8080/v1/chat/completions",
+        base_url,
         json=data,
         headers={"Content-Type": "application/json"}
     )
@@ -105,7 +108,7 @@ def test_image_url():
     }
     
     response = requests.post(
-        "http://localhost:8080/v1/chat/completions",
+        base_url,
         json=data,
         headers={"Content-Type": "application/json"}
     )
@@ -159,7 +162,7 @@ def test_mixed_content():
     }
     
     response = requests.post(
-        "http://localhost:8080/v1/chat/completions",
+        base_url,
         json=data,
         headers={"Content-Type": "application/json"}
     )
