@@ -8,7 +8,12 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     FLASK_APP=app_vertex.py \
-    FLASK_ENV=production
+    FLASK_ENV=production \
+    FLASK_DEBUG=false \
+    DEBUG=false \
+    PORT=8080 \
+    GOOGLE_CLOUD_PROJECT=bulayezhou \
+    GOOGLE_CLOUD_LOCATION=us-central1
 
 # 安装系统依赖
 RUN apk add --no-cache \
