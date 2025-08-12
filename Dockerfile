@@ -12,6 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_DEBUG=false \
     DEBUG=false \
     PORT=8080 \
+    GUNICORN_WORKERS=4 \
+    GUNICORN_TIMEOUT=600 \
     GOOGLE_CLOUD_PROJECT=bulayezhou \
     GOOGLE_CLOUD_LOCATION=us-central1
 
@@ -44,5 +46,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# 启动应用
-CMD ["python", "app_vertex.py"] 
+# 启动应用 - 使用生产模式
+CMD ["python", "start.py", "prod"] 

@@ -2,3 +2,4 @@ node_modules
 .envrc
 .conda-project
 account.json
+__pycache__

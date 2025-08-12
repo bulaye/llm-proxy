@@ -12,4 +12,7 @@ google-cloud-aiplatform==1.56.0
 
 # 其他工具
 python-dotenv==1.0.0
-requests==2.31.0 
+requests==2.31.0
+
+# 生产服务器
+gunicorn==21.2.0 
