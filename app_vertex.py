@@ -7,6 +7,9 @@ import os
 from dotenv import load_dotenv
 import uuid
 import time
+import base64
+import mimetypes
+import requests
 
 # 加载环境变量
 load_dotenv()
@@ -16,8 +19,32 @@ CORS(app)
 
 # 初始化Vertex AI
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "bulayezhou")
-location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
+location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 vertexai.init(project=project_id, location=location)
+
+
+import base64
+import requests
+import re
+from vertexai.generative_models import Content, Part, Image
+
+def extract_base64_from_data_uri(data_uri):
+    """从数据 URI 中提取 Base64 编码的数据"""
+    # 匹配格式：data:[<mediatype>][;base64],<data>
+    match = re.search(r"data:image\/\w+;base64,(.+)", data_uri)
+    if match:
+        return match.group(1)
+    # 如果格式不标准，尝试直接获取逗号后的内容
+    if "," in data_uri:
+        return data_uri.split(",", 1)[1]
+    return data_uri  # 可能已经是纯 Base64
+
+def download_image(url):
+    """下载远程图片"""
+    response = requests.get(url)
+    response.raise_for_status()  # 确保请求成功
+    return response.content
+
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -52,8 +79,41 @@ def chat_completions():
                 # assistant -> model
                 contents.append(Content(role="model", parts=[Part.from_text(content)]))
             elif role == "user":
-                # user保持不变，简单转换content
-                contents.append(Content(role="user", parts=[Part.from_text(content)]))
+                # 处理用户消息，支持文本和图片
+                parts = []
+                
+                if isinstance(content, str):
+                    # 纯文本消息
+                    parts.append(Part.from_text(content))
+                elif isinstance(content, list):
+                    # 多模态消息（文本 + 图片）
+                    for item in content:
+                        if item["type"] == "text":
+                        # 处理文本部分
+                        parts.append(Part.from_text(item["text"]))
+                        
+                    elif item["type"] == "image_url":
+                        url_or_data = item["image_url"]["url"]
+                        
+                        # 检查是否是 Base64 数据 URI（格式如：data:image/png;base64,iVBORw0...）
+                        if url_or_data.startswith("data:image/"):
+                            # 从数据 URI 中提取 Base64 部分
+                            base64_data = extract_base64_from_data_uri(url_or_data)
+                            parts.append(Part.from_image(Image.from_base64(base64_data)))
+                            
+                        elif url_or_data.startswith(("http://", "https://")):
+                            # 处理 HTTP/HTTPS URL
+                            image_data = download_image(url_or_data)
+                            base64_image = base64.b64encode(image_data).decode("utf-8")
+                            parts.append(Part.from_image(Image.from_base64(base64_image)))
+                            
+                        else:
+                            # 其他情况（可能是本地路径或 GCS URI）
+                            # 注意：Vertex AI 原生支持 GCS URI（gs://...）
+                            parts.append(Part.from_image(Image.load_from_file(url_or_data)))
+                
+                if parts:
+                    contents.append(Content(role="user", parts=parts))
         
         # 创建模型
         model_kwargs = {}
