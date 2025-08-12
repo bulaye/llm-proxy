@@ -15,7 +15,8 @@ import urllib.request
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # 启用跨域支持
+CORS(app, origins="*", methods=["GET", "POST", "OPTIONS"], 
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"])  # 更详细的CORS配置
 
 # 初始化Vertex AI
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "bulayezhou")
@@ -205,12 +206,37 @@ def chat_completions():
                         }
                         yield f"data: {json.dumps(chunk_data)}\n\n"
 
-                    yield f"data: [DONE]\n\n"
+                    # 发送最终的结束块，确保客户端知道流已结束
+                    final_chunk_data = {
+                        "id": response_id,
+                        "object": "chat.completion.chunk",
+                        "created": created_time,
+                        "model": model_name,
+                        "choices": [
+                            {
+                                "index": 0,
+                                "delta": {},
+                                "finish_reason": "stop"
+                            }
+                        ]
+                    }
+                    yield f"data: {json.dumps(final_chunk_data)}\n\n"
+                    
+                    # 发送标准的结束标记
+                    yield "data: [DONE]\n\n"
                 except Exception as e:
                     error_data = {"error": str(e), "type": "error"}
                     yield f"data: {json.dumps(error_data)}\n\n"
+                    yield "data: [DONE]\n\n"
             
-            return Response(generate_stream(), mimetype='text/event-stream')
+            # 设置正确的响应头，确保客户端能正确识别流式响应
+            response = Response(generate_stream(), mimetype='text/event-stream')
+            response.headers['Cache-Control'] = 'no-cache'
+            response.headers['Connection'] = 'keep-alive'
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+            return response
         else:
             response = model.generate_content(
                 contents,
