@@ -99,13 +99,14 @@ def chat_completions():
                             if url_or_data.startswith("data:image/"):
                                 # 从数据 URI 中提取 Base64 部分
                                 base64_data = extract_base64_from_data_uri(url_or_data)
-                                parts.append(Part.from_image(Image.from_base64(base64_data)))
+                                # 直接解码 base64 数据并创建 Image 对象
+                                image_bytes = base64.b64decode(base64_data)
+                                parts.append(Part.from_image(Image(image_bytes=image_bytes)))
                                 
                             elif url_or_data.startswith(("http://", "https://")):
                                 # 处理 HTTP/HTTPS URL
                                 image_data = download_image(url_or_data)
-                                base64_image = base64.b64encode(image_data).decode("utf-8")
-                                parts.append(Part.from_image(Image.from_base64(base64_image)))
+                                parts.append(Part.from_image(Image(image_bytes=image_data)))
                                 
                             else:
                                 # 其他情况（可能是本地路径或 GCS URI）
