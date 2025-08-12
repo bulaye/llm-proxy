@@ -89,28 +89,28 @@ def chat_completions():
                     # 多模态消息（文本 + 图片）
                     for item in content:
                         if item["type"] == "text":
-                        # 处理文本部分
-                        parts.append(Part.from_text(item["text"]))
+                            # 处理文本部分
+                            parts.append(Part.from_text(item["text"]))
                         
-                    elif item["type"] == "image_url":
-                        url_or_data = item["image_url"]["url"]
-                        
-                        # 检查是否是 Base64 数据 URI（格式如：data:image/png;base64,iVBORw0...）
-                        if url_or_data.startswith("data:image/"):
-                            # 从数据 URI 中提取 Base64 部分
-                            base64_data = extract_base64_from_data_uri(url_or_data)
-                            parts.append(Part.from_image(Image.from_base64(base64_data)))
+                        elif item["type"] == "image_url":
+                            url_or_data = item["image_url"]["url"]
                             
-                        elif url_or_data.startswith(("http://", "https://")):
-                            # 处理 HTTP/HTTPS URL
-                            image_data = download_image(url_or_data)
-                            base64_image = base64.b64encode(image_data).decode("utf-8")
-                            parts.append(Part.from_image(Image.from_base64(base64_image)))
-                            
-                        else:
-                            # 其他情况（可能是本地路径或 GCS URI）
-                            # 注意：Vertex AI 原生支持 GCS URI（gs://...）
-                            parts.append(Part.from_image(Image.load_from_file(url_or_data)))
+                            # 检查是否是 Base64 数据 URI（格式如：data:image/png;base64,iVBORw0...）
+                            if url_or_data.startswith("data:image/"):
+                                # 从数据 URI 中提取 Base64 部分
+                                base64_data = extract_base64_from_data_uri(url_or_data)
+                                parts.append(Part.from_image(Image.from_base64(base64_data)))
+                                
+                            elif url_or_data.startswith(("http://", "https://")):
+                                # 处理 HTTP/HTTPS URL
+                                image_data = download_image(url_or_data)
+                                base64_image = base64.b64encode(image_data).decode("utf-8")
+                                parts.append(Part.from_image(Image.from_base64(base64_image)))
+                                
+                            else:
+                                # 其他情况（可能是本地路径或 GCS URI）
+                                # 注意：Vertex AI 原生支持 GCS URI（gs://...）
+                                parts.append(Part.from_image(Image.load_from_file(url_or_data)))
                 
                 if parts:
                     contents.append(Content(role="user", parts=parts))
