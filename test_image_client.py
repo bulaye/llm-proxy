@@ -8,7 +8,34 @@ import base64
 
 # base_url = "http://localhost:8080/v1/chat/completions"
 base_url = "https://llm-proxy-605029883265.us-central1.run.app/v1/chat/completions"
+# 使用一个公开的测试图片URL
+image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/1280px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+   
 
+def image_to_base64(image_path):
+    """
+    将图片文件转换为base64编码字符串
+    
+    Args:
+        image_path (str): 图片文件路径
+        
+    Returns:
+        str: base64编码字符串
+    """
+    try:
+        with open(image_path, 'rb') as image_file:
+            image_data = image_file.read()
+            base64_string = base64.b64encode(image_data).decode('utf-8')
+            return base64_string
+    except FileNotFoundError:
+        print(f"错误：找不到文件 {image_path}")
+        return None
+    except Exception as e:
+        print(f"错误：转换图片时出现问题 - {str(e)}")
+        return None
+
+tiny_png_base64 = image_to_base64("20250803_1038_生日派对祝贺_remix_01k1pwhdhdfqnvgz1zfs9cdmfw.png")
+print(tiny_png_base64)
 def test_text_only():
     """测试纯文本消息"""
     print("🧪 测试纯文本消息...")
@@ -42,8 +69,7 @@ def test_image_base64():
     
     # 创建一个简单的1x1像素的PNG图片（Base64编码）
     # 这是一个透明的1x1像素PNG图片
-    tiny_png_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA4iQdJQAAAABJRU5ErkJggg=="
-    
+
     data = {
         "model": "gemini-2.5-pro",
         "messages": [
@@ -82,9 +108,7 @@ def test_image_url():
     """测试URL形式的图片"""
     print("\n🧪 测试URL图片...")
     
-    # 使用一个公开的测试图片URL
-    image_url = "https://httpbin.org/image/png"
-    
+ 
     data = {
         "model": "gemini-2.5-pro", 
         "messages": [
@@ -123,8 +147,6 @@ def test_mixed_content():
     """测试混合内容（文本 + 多张图片）"""
     print("\n🧪 测试混合内容...")
     
-    tiny_png_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA4iQdJQAAAABJRU5ErkJggg=="
-    
     data = {
         "model": "gemini-2.5-pro",
         "messages": [
@@ -148,7 +170,7 @@ def test_mixed_content():
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/png;base64,{tiny_png_base64}"
+                            "url": image_url
                         }
                     },
                     {
