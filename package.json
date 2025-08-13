@@ -5,17 +5,18 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --loader ts-node/esm test.ts"
+    "test": "tsx test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "undici": "^6.21.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   }
 }

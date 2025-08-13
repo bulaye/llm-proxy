@@ -2,6 +2,23 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import OpenAI from "openai";
+import { fetch as nodeFetch, ProxyAgent } from "undici";
+
+function getFetch(url: RequestInfo | URL, opts?: RequestInit) {
+  const urlString = url instanceof Request ? url.url : url.toString();
+  // 将 RequestInit 转换为 undici 的 RequestInit 类型
+  const undiciOpts = {
+    ...opts,
+    dispatcher: new ProxyAgent("http://168.64.5.83:8080/"),
+    // 在fetch级别也禁用SSL验证
+    // @ts-ignore - 忽略 undici 和标准 fetch 之间的类型差异
+    // rejectUnauthorized: false,
+  };
+  return nodeFetch(
+    urlString,
+    undiciOpts as any
+  ) as unknown as Promise<Response>;
+}
 
 const baseURL = "https://llm-proxy-605029883265.us-central1.run.app";
 // const baseURL = "http://localhost:8080";
@@ -11,20 +28,13 @@ const openai = new OpenAI({
   baseURL: `${baseURL}/v1`,
   apiKey: "not-needed", // 本地代理不需要API Key
   // 添加额外的fetch选项来处理SSL问题
-  fetch: (url, options) => {
-    return fetch(url, {
-      ...options,
-      // 在fetch级别也禁用SSL验证
-      // @ts-ignore
-      rejectUnauthorized: false,
-    });
-  },
+  fetch: getFetch,
 });
 
 async function testHealth() {
   console.log("🔍 测试健康检查接口...");
   try {
-    const response = await fetch(`${baseURL}/health`);
+    const response = await getFetch(`${baseURL}/health`, {});
     if (response.ok) {
       const data = await response.json();
       console.log(`状态码: ${response.status}`);
