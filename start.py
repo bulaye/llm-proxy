@@ -25,7 +25,7 @@ def start_production():
     """启动生产服务器"""
     port = int(os.getenv('PORT', 8080))
     workers = int(os.getenv('GUNICORN_WORKERS', 4))
-    timeout = int(os.getenv('GUNICORN_TIMEOUT', 600))
+    timeout = int(os.getenv('GUNICORN_TIMEOUT', 6000))
     
     print(f"🚀 Gemini Vertex AI代理服务启动中...")
     print(f"📍 服务地址: http://localhost:{port}/v1/chat/completions")
