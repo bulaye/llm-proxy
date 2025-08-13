@@ -2,6 +2,31 @@
 # yarn lockfile v1
 
 
+"@ai-sdk/openai-compatible@^0.1.15":
+  version "0.1.17"
+  resolved "http://registry.npm.htsc/@ai-sdk/openai-compatible/-/openai-compatible-0.1.17.tgz#1d85158879ead78ad5e126d0dc62f2297a18b143"
+  integrity sha512-e60+yxQ29e8RlsTWBW4kLuQJMpVJzH5+cpOeUXLXU6M9wc8BOQCyYg4jYh2ldnfvYCKXYxb2kYeLW7L9fqhhMw==
+  dependencies:
+    "@ai-sdk/provider" "1.0.12"
+    "@ai-sdk/provider-utils" "2.1.15"
+
+"@ai-sdk/provider-utils@2.1.15":
+  version "2.1.15"
+  resolved "http://registry.npm.htsc/@ai-sdk/provider-utils/-/provider-utils-2.1.15.tgz#20d23dfada7d988bebf176fdfc62b48fca7bd822"
+  integrity sha512-ndMVtDm2xS86t45CJZSfyl7UblZFewRB8gZkXQHeNi7BhjCYkhE+XQMwfDl6UOAO7kaV60IC1R4JLDWxWiiHug==
+  dependencies:
+    "@ai-sdk/provider" "1.0.12"
+    eventsource-parser "^3.0.0"
+    nanoid "^3.3.8"
+    secure-json-parse "^2.7.0"
+
+"@ai-sdk/provider@1.0.12":
+  version "1.0.12"
+  resolved "http://registry.npm.htsc/@ai-sdk/provider/-/provider-1.0.12.tgz#f2df2b1f17863e213b5138d27cd5d09bcb6f976c"
+  integrity sha512-88Uu1zJIE1UUOVJWfE2ybJXgiH8JJ97QY9fbmplErEbfa/k/1kF+tWMVAAJolF2aOGmazQGyQLhv4I9CCuVACw==
+  dependencies:
+    json-schema "^0.4.0"
+
 "@esbuild/aix-ppc64@0.25.9":
   version "0.25.9"
   resolved "http://registry.npm.htsc/@esbuild/aix-ppc64/-/aix-ppc64-0.25.9.tgz#bef96351f16520055c947aba28802eede3c9e9a9"
@@ -273,6 +298,11 @@ event-target-shim@^5.0.0:
   resolved "http://registry.npm.htsc/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
+eventsource-parser@^3.0.0:
+  version "3.0.3"
+  resolved "http://registry.npm.htsc/eventsource-parser/-/eventsource-parser-3.0.3.tgz#e9af1d40b77e6268cdcbc767321e8b9f066adea8"
+  integrity sha512-nVpZkTMM9rF6AQ9gPJpFsNAMt48wIzB5TQgiTLdHiuO8XEDhUgZEhqKlZWXbIzo9VmJ/HvysHqEaVeD5v9TPvA==
+
 form-data-encoder@1.7.2:
   version "1.7.2"
   resolved "http://registry.npm.htsc/form-data-encoder/-/form-data-encoder-1.7.2.tgz#1f1ae3dccf58ed4690b86d87e4f57c654fbab040"
@@ -369,6 +399,11 @@ humanize-ms@^1.2.1:
   dependencies:
     ms "^2.0.0"
 
+json-schema@^0.4.0:
+  version "0.4.0"
+  resolved "http://registry.npm.htsc/json-schema/-/json-schema-0.4.0.tgz#f7de4cf6efab838ebaeb3236474cbba5a1930ab5"
+  integrity sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==
+
 math-intrinsics@^1.1.0:
   version "1.1.0"
   resolved "http://registry.npm.htsc/math-intrinsics/-/math-intrinsics-1.1.0.tgz#a0dd74be81e2aa5c2f27e65ce283605ee4e2b7f9"
@@ -390,6 +425,11 @@ ms@^2.0.0:
   version "2.1.3"
   resolved "http://registry.npm.htsc/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+
+nanoid@^3.3.8:
+  version "3.3.11"
+  resolved "http://registry.npm.htsc/nanoid/-/nanoid-3.3.11.tgz#4f4f112cefbe303202f2199838128936266d185b"
+  integrity sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==
 
 node-domexception@1.0.0:
   version "1.0.0"
@@ -420,6 +460,11 @@ resolve-pkg-maps@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.htsc/resolve-pkg-maps/-/resolve-pkg-maps-1.0.0.tgz#616b3dc2c57056b5588c31cdf4b3d64db133720f"
   integrity sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==
+
+secure-json-parse@^2.7.0:
+  version "2.7.0"
+  resolved "http://registry.npm.htsc/secure-json-parse/-/secure-json-parse-2.7.0.tgz#5a5f9cd6ae47df23dba3151edd06855d47e09862"
+  integrity sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==
 
 tr46@~0.0.3:
   version "0.0.3"

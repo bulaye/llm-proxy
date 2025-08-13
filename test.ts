@@ -3,6 +3,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import OpenAI from "openai";
 import { fetch as nodeFetch, ProxyAgent } from "undici";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 function getFetch(url: RequestInfo | URL, opts?: RequestInit) {
   const urlString = url instanceof Request ? url.url : url.toString();
@@ -130,6 +131,40 @@ async function testMultimodal() {
     return true;
   } catch (error) {
     console.error("❌ 多模态测试失败:", error);
+    return false;
+  }
+}
+
+async function testAISDKCompatible() {
+  console.log("\n🤖 测试AI SDK兼容接口 (使用 createOpenAICompatible)...");
+  try {
+    // 创建AI SDK兼容的客户端
+    const aiSDKClient = createOpenAICompatible({
+      baseURL: `${baseURL}/v1`,
+      apiKey: "not-needed",
+      fetch: getFetch,
+    });
+
+    // 使用AI SDK进行聊天
+    const result = await aiSDKClient.chat.completions.create({
+      model: "gemini-2.5-pro",
+      messages: [
+        { role: "system", content: "你是一个专业的AI助手，擅长技术问题解答。" },
+        {
+          role: "user",
+          content: "请解释一下什么是Vertex AI，并说明它的主要优势。",
+        },
+      ],
+      temperature: 0.8,
+      max_tokens: 500,
+    });
+
+    console.log(`状态码: 200`);
+    console.log(`完整响应: ${JSON.stringify(result, null, 2)}`);
+    console.log(`助手回答: ${result.choices[0].message.content}`);
+    return true;
+  } catch (error) {
+    console.error("❌ AI SDK兼容测试失败:", error);
     return false;
   }
 }

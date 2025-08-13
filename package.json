@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "openai": "^4.0.0",
-    "undici": "^6.21.2"
+    "undici": "^6.21.2",
+    "@ai-sdk/openai-compatible": "^0.1.15"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -104,8 +104,7 @@ def chat_completions():
         data = request.get_json()
         messages = data.get('messages', [])
         stream = data.get('stream', False)
-        model_name = data.get('model', "gemini-2.5-pro")
-        
+        model_name = "gemini-2.5-pro"
         # OpenAI到Vertex AI的基本转换
         system_instruction = None
         contents = []
