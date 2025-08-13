@@ -143,11 +143,20 @@ def chat_completions():
                 response_id = f"chatcmpl-{uuid.uuid4()}"
                 created_time = int(time.time())
                 
+                # 检查是否需要包含usage信息
+                include_usage = data.get('stream_options', {}).get('include_usage', False)
+                
                 generate_params = {'contents': contents, 'stream': True}
                 if generation_config:
                     generate_params['generation_config'] = generation_config
                 
                 response_stream = model.generate_content(**generate_params)
+                
+                # 初始化token计数变量
+                prompt_tokens = 0
+                completion_tokens = 0
+                total_tokens = 0
+                full_response_text = ""
                 
                 # 首个chunk包含角色信息
                 first_chunk = {
@@ -166,6 +175,9 @@ def chat_completions():
                 # 流式内容
                 for chunk in response_stream:
                     if chunk.text:
+                        # 累积完整响应文本用于后续计算
+                        full_response_text += chunk.text
+                        
                         chunk_data = {
                             "id": response_id,
                             "object": "chat.completion.chunk",
@@ -191,6 +203,28 @@ def chat_completions():
                         "finish_reason": "stop"
                     }]
                 }
+                
+                # 如果需要包含usage信息，在最终chunk中添加
+                if include_usage:
+                    # 手动计算usage信息
+                    # 计算输入token数量（粗略估算）
+                    input_text = ""
+                    for content in contents:
+                        for part in content.parts:
+                            if hasattr(part, 'text') and part.text:
+                                input_text += part.text + " "
+                    
+                    # 使用简单的token估算方法（按空格分割）
+                    prompt_tokens = len(input_text.split())
+                    completion_tokens = len(full_response_text.split())
+                    total_tokens = prompt_tokens + completion_tokens
+                    
+                    final_chunk["usage"] = {
+                        "prompt_tokens": prompt_tokens,
+                        "completion_tokens": completion_tokens,
+                        "total_tokens": total_tokens
+                    }
+                
                 yield f"data: {json.dumps(final_chunk)}\n\n"
                 yield "data: [DONE]\n\n"
             
