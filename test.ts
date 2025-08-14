@@ -9,7 +9,7 @@ function getFetch(url: RequestInfo | URL, opts?: RequestInit) {
   // 将 RequestInit 转换为 undici 的 RequestInit 类型
   const undiciOpts = {
     ...opts,
-    dispatcher: new ProxyAgent("http://168.64.5.83:8080/"),
+    // dispatcher: new ProxyAgent("http://168.64.5.83:8080/"),
     // 在fetch级别也禁用SSL验证
     // @ts-ignore - 忽略 undici 和标准 fetch 之间的类型差异
     // rejectUnauthorized: false,
@@ -20,7 +20,8 @@ function getFetch(url: RequestInfo | URL, opts?: RequestInit) {
   ) as unknown as Promise<Response>;
 }
 
-const baseURL = "https://llm-proxy-605029883265.us-central1.run.app";
+// const baseURL = "https://llm-proxy-605029883265.us-central1.run.app";
+const baseURL = "http://ai-coding-v2.sit.saas.htsc";
 // const baseURL = "http://localhost:8080";
 // 配置OpenAI客户端指向本地代理服务
 const openai = new OpenAI({
