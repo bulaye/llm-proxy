@@ -29,7 +29,7 @@ const openai = new OpenAI({
   baseURL: `${baseURL}/v1`,
   apiKey: "not-needed", // 本地代理不需要API Key
   // 添加额外的fetch选项来处理SSL问题
-  fetch: getFetch,
+  // fetch: getFetch,
 });
 
 async function testHealth() {

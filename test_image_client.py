@@ -6,11 +6,10 @@ import requests
 import json
 import base64
 
-# base_url = "http://localhost:8080/v1/chat/completions"
-base_url = "https://llm-proxy-605029883265.us-central1.run.app/v1/chat/completions"
+base_url = "http://ai-coding-v2.sit.saas.htsc/v1/chat/completions"
+# base_url = "https://llm-proxy-605029883265.us-central1.run.app/v1/chat/completions"
 # 使用一个公开的测试图片URL
-image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/1280px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
-   
+image_url = "http://lanhu.htsc.com.cn:8089/images/MasterCoverd91c6bce-bd52-4bd6-9400-c5d4900b1951.png"
 
 def image_to_base64(image_path):
     """
@@ -34,8 +33,15 @@ def image_to_base64(image_path):
         print(f"错误：转换图片时出现问题 - {str(e)}")
         return None
 
-tiny_png_base64 = image_to_base64("20250803_1038_生日派对祝贺_remix_01k1pwhdhdfqnvgz1zfs9cdmfw.png")
+tiny_png_base64 = image_to_base64("1.png")
 print(tiny_png_base64)
+if tiny_png_base64:
+    size_bytes = len(tiny_png_base64)
+    size_mb = size_bytes / (1024 * 1024)
+    print(f"tiny_png_base64的大小: {size_bytes} 个字符")
+    print(f"tiny_png_base64的大小: {size_mb:.6f} MB")
+else:
+    print("tiny_png_base64为空或转换失败")
 def test_text_only():
     """测试纯文本消息"""
     print("🧪 测试纯文本消息...")
