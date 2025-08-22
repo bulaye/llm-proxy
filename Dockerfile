@@ -5,4 +5,4 @@ FROM nginx:stable-alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # 暴露 80 端口，以便容器可以接收 HTTP 请求
-EXPOSE 80
+EXPOSE 8080
