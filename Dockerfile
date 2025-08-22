@@ -1,50 +1,8 @@
-# 使用 Python 3.11 作为基础镜像
-FROM python:3.11-alpine
+FROM nginx:stable-alpine
 
-# 设置工作目录
-WORKDIR /app
+# 将你的 nginx.conf 文件复制到容器的正确位置
+# 这个操作会覆盖掉 Nginx 镜像中默认的配置
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# 设置环境变量
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    FLASK_APP=app_vertex.py \
-    FLASK_ENV=production \
-    FLASK_DEBUG=false \
-    DEBUG=false \
-    PORT=8080 \
-    GUNICORN_WORKERS=4 \
-    GUNICORN_TIMEOUT=6000 \
-    GOOGLE_CLOUD_PROJECT=bulayezhou \
-    GOOGLE_CLOUD_LOCATION=us-central1
-
-# 安装系统依赖
-RUN apk add --no-cache \
-    gcc \
-    g++ \
-    musl-dev \
-    curl
-
-# 复制依赖文件
-COPY requirements.txt .
-
-# 安装 Python 依赖
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# 复制应用代码
-COPY . .
-
-# 创建非 root 用户
-RUN adduser -D -s /bin/sh app && \
-    chown -R app:app /app
-USER app
-
-# 暴露端口
-EXPOSE 8080
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-# 启动应用 - 使用生产模式
-CMD ["python", "start.py", "prod"] 
+# 暴露 80 端口，以便容器可以接收 HTTP 请求
+EXPOSE 80
