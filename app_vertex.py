@@ -20,7 +20,7 @@ CORS(app)
 
 # 初始化Vertex AI
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "bulayezhou")
-location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+location = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-east2")
 vertexai.init(project=project_id, location=location)
 
 
