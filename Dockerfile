@@ -15,7 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     GUNICORN_WORKERS=4 \
     GUNICORN_TIMEOUT=6000 \
     GOOGLE_CLOUD_PROJECT=vertex-testing \
-    GOOGLE_CLOUD_LOCATION=asia-east2
+    GOOGLE_CLOUD_LOCATION=us-central1
 
 # 安装系统依赖
 RUN apk add --no-cache \
