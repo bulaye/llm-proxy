@@ -18,6 +18,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+
 # 初始化Vertex AI
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "vertex-testing")
 location = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-east2")
